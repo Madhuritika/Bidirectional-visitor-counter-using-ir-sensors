@@ -1,0 +1,60 @@
+#include <LiquidCrystal.h>
+
+// LCD pins: RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
+
+int s1 = 7;  // IR Sensor 1
+int s2 = 6;  // IR Sensor 2
+
+int count = 0;
+int state = 0;
+
+void setup() {
+  pinMode(s1, INPUT_PULLUP);
+  pinMode(s2, INPUT_PULLUP);
+
+  lcd.begin(16, 2);
+  lcd.setCursor(0, 0);
+  lcd.print("Visitor Count");
+  delay(1000);
+  lcd.clear();
+}
+
+void loop() {
+  int sensor1 = digitalRead(s1);
+  int sensor2 = digitalRead(s2);
+
+  switch(state) {
+
+    case 0:
+      if (sensor1 == LOW) state = 1;   // possible entry
+      else if (sensor2 == LOW) state = 2; // possible exit
+      break;
+
+    case 1: // entry
+      if (sensor2 == LOW) {
+        count++;
+        updateLCD();
+        delay(400);
+        state = 0;
+      }
+      break;
+
+    case 2: // exit
+      if (sensor1 == LOW) {
+        count--;
+        if (count < 0) count = 0;
+        updateLCD();
+        delay(400);
+        state = 0;
+      }
+      break;
+  }
+}
+
+void updateLCD() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Count: ");
+  lcd.print(count);
+}
