@@ -1,0 +1,10 @@
+The hardware setup utilizes an Arduino microcontroller board as the primary logic processor,paired with an LCD screen and two independent infrared (IR) sensor modules aligned sequentially along a pathway. 
+Each self-contained IR module features an infrared emitter LED that projects a continuous beam of light and a matching onboard receiver that monitors this beam.
+In its idle state, the uninterrupted light path maintains a stable 5V digital signal outputted to the Arduino’s input pins. 
+The moment a passing individual physically breaks the first beam, the module's onboard voltage comparator chip registers the loss of light reflection and immediately drops its output signal to 0V (a digital LOW). 
+This sudden voltage shift triggers a high-priority interrupt or polling check inside the Arduino, which timestamps the event and logs the state change.
+As the person continues moving forward, they momentarily block both sensors simultaneously before clearing the first sensor and finally clearing the second sensor. 
+The Arduino evaluates this exact chronological breakdown: if the voltage drop on Sensor A precedes the voltage drop on Sensor B, the Arduino's program logic registers a verified entry sequence and updates its internal memory counter by incrementing it (+1). 
+Conversely, if Sensor B experiences the initial 0V signal drop before Sensor A, the firmware executes a decrement function (-1) to log a clean exit. 
+Once the state machine confirms the direction of travel, the Arduino compiles the new count value into binary data bytes and sends them over its communication lines to update the LCD display,
+instantly refreshing the screen with the accurate visitor count
